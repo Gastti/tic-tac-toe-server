@@ -10,9 +10,10 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT | 4000;
+const CLIENT_URL = process.env.CLIENT_URL;
 export const io = new SocketServer(server, {
   cors: {
-    origin: "https://tiny-tapioca-8064a1.netlify.app/",
+    origin: CLIENT_URL,
   },
 });
 
