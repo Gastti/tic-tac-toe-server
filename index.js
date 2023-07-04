@@ -13,7 +13,7 @@ const PORT = process.env.PORT | 4000;
 const CLIENT_URL = process.env.CLIENT_URL;
 export const io = new SocketServer(server, {
   cors: {
-    origin: CLIENT_URL,
+    origin: "https://tic-tac-toe-six-ruddy.vercel.app/",
   },
 });
 
