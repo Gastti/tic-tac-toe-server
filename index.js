@@ -12,7 +12,7 @@ const server = http.createServer(app);
 const PORT = process.env.PORT | 4000;
 export const io = new SocketServer(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "https://tiny-tapioca-8064a1.netlify.app/",
   },
 });
 
