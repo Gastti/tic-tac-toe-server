@@ -1,7 +1,6 @@
 import express from "express";
 import http from "http";
 import { Server as SocketServer } from "socket.io";
-import cors from "cors";
 import dotenv from "dotenv";
 import { create, join, leave } from "./controllers/lobby_controllers.js";
 import { start, move, restart } from "./controllers/match_controllers.js";
@@ -14,18 +13,15 @@ const PORT = process.env.PORT | 4000;
 const CLIENT_URL = process.env.CLIENT_URL;
 
 const corsOptions = {
-  origin: [
-    "https://tic-tac-toe-six-ruddy.vercel.app", 
-    "https://tic-tac-toe-server-production-88a3.up.railway.app"
-  ],
+  origin: CLIENT_URL,
   methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
 
-const corsMiddleware = cors(corsOptions);
+export const io = new SocketServer(server, {
+  cors: corsOptions,
+});
 
-export const io = new SocketServer(server);
-// io.use(corsMiddleware);
-io.use("/socket.io", cors(corsOptions));
 export const lobbies = [];
 
 io.on("connection", async (socket) => {
