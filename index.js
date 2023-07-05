@@ -1,16 +1,24 @@
 import express from "express";
 import http from "http";
 import { Server as SocketServer } from "socket.io";
+import cors from "cors";
 import dotenv from "dotenv";
 import { create, join, leave } from "./controllers/lobby_controllers.js";
 import { start, move, restart } from "./controllers/match_controllers.js";
+const CLIENT_URL = process.env.CLIENT_URL;
 
 dotenv.config();
 
 const app = express();
+
+app.use(cors({
+  origin: CLIENT_URL,
+  methods: "GET, POST, PUT, DELETE",
+  allowedHeaders: "Content-Type, Authorization"
+}));
+
 const server = http.createServer(app);
 const PORT = process.env.PORT | 4000;
-const CLIENT_URL = process.env.CLIENT_URL;
 
 const corsOptions = {
   origin: CLIENT_URL,
