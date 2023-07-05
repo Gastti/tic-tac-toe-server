@@ -1,6 +1,7 @@
 import express from "express";
 import http from "http";
 import { Server as SocketServer } from "socket.io";
+import cors from "cors";
 import dotenv from "dotenv";
 import { create, join, leave } from "./controllers/lobby_controllers.js";
 import { start, move, restart } from "./controllers/match_controllers.js";
@@ -12,18 +13,15 @@ const server = http.createServer(app);
 const PORT = process.env.PORT | 4000;
 const CLIENT_URL = process.env.CLIENT_URL;
 
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "https://tic-tac-toe-six-ruddy.vercel.app");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  next();
-});
+const corsOptions = {
+  origin: "https://tic-tac-toe-six-ruddy.vercel.app",
+  methods: ["GET", "POST"],
+};
 
-export const io = new SocketServer(server, {
-  cors: {
-    origin: "https://tic-tac-toe-six-ruddy.vercel.app",
-  },
-});
+const corsMiddleware = cors(corsOptions);
+
+export const io = new SocketServer(server);
+io.use(corsMiddleware);
 
 export const lobbies = [];
 
