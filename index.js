@@ -14,7 +14,10 @@ const PORT = process.env.PORT | 4000;
 const CLIENT_URL = process.env.CLIENT_URL;
 
 const corsOptions = {
-  origin: "https://tic-tac-toe-six-ruddy.vercel.app",
+  origin: [
+    "https://tic-tac-toe-six-ruddy.vercel.app",
+    "https://tic-tac-toe-server-production-88a3.up.railway.app"
+  ],
   methods: ["GET", "POST"],
 };
 
