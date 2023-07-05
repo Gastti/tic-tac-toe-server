@@ -1,28 +1,37 @@
 import { io, lobbies } from "../index.js";
 import { generateLobbyId, getLobbyIdByPlayer } from "../utils/utils.js";
+import { checkLobbyId, checkPlayer } from "../utils/validations.js";
 
 const create = (socket, player) => {
     try {
-        const id = generateLobbyId();
-        const name = `Lobby ${lobbies.length + 1}`;
-        const gameboard = Array(9).fill("");
-        const score = [0, 0];
-        const lobby = {
-            id,
-            name,
-            players: [{ id: socket.id, name: player.name, avatar: player.avatar, marker: "O", score: 0 }],
-            gameboard,
-            score,
-            turn: Math.floor(Math.random() * 2),
-            status: "waiting",
-            draw: false,
-            winner: "",
-            owner: socket.id
-        };
-        lobbies.push(lobby);
-        socket.join(id);
-        socket.emit("userReady", player);
-        socket.emit("lobbyCreated", lobby);
+        const sanitizedPlayer = checkPlayer(player);
+
+        if (sanitizedPlayer.ok) {
+            const { playerName, playerAvatar } = sanitizedPlayer.data;
+            const id = generateLobbyId();
+            const name = `Lobby ${lobbies.length + 1}`;
+            const gameboard = Array(9).fill("");
+            const score = [0, 0];
+            const lobby = {
+                id,
+                name,
+                players: [{ id: socket.id, name: playerName, avatar: playerAvatar, marker: "O", score: 0 }],
+                gameboard,
+                score,
+                turn: Math.floor(Math.random() * 2),
+                status: "waiting",
+                draw: false,
+                winner: "",
+                owner: socket.id
+            };
+            lobbies.push(lobby);
+            socket.join(id);
+            socket.emit("userReady", player);
+            socket.emit("lobbyCreated", lobby);
+        } else {
+            socket.emit("error");
+            console.log("Datos ingresados no validos en lobby_controllers.js - create");
+        }
     } catch (error) {
         console.log("Error en lobby_controllers.js - create", error);
     }
@@ -31,23 +40,34 @@ const create = (socket, player) => {
 const join = (socket, data) => {
     try {
         const { lobbyId, player } = data;
-        const lobby = lobbies.find((l) => l.id === lobbyId);
+        const sanitizedLobbyId = checkLobbyId(lobbyId)
+        const sanitizedPlayer = checkPlayer(player)
 
-        if (lobby && lobby.status === "waiting") {
-            socket.join(lobbyId);
-            lobby.players.push({
-                id: socket.id,
-                name: player.name,
-                avatar: player.avatar,
-                marker: lobby.players[0].marker === "X" ? "O" : "X",
-                score: 0
-            });
-            socket.emit("userReady", player);
-            io.to(lobbyId).emit("lobbyJoined", lobby);
+        if (sanitizedLobbyId.ok && sanitizedPlayer.ok) {
+            const { id } = sanitizedLobbyId.data;
+            const { playerName, playerAvatar } = sanitizedPlayer.data;
+            const lobby = lobbies.find((l) => l.id === lobbyId);
+
+            if (lobby && lobby.status === "waiting") {
+                socket.join(id);
+                lobby.players.push({
+                    id: socket.id,
+                    name: playerName,
+                    avatar: playerAvatar,
+                    marker: lobby.players[0].marker === "X" ? "O" : "X",
+                    score: 0
+                });
+                socket.emit("userReady", player);
+                io.to(lobbyId).emit("lobbyJoined", lobby);
+            } else {
+                socket.emit("lobbyNotFound");
+            }
         } else {
-            socket.emit("lobbyNotFound");
+            socket.emit("error");
+            console.log("Datos ingresados no validos en lobby_controllers.js - join");
         }
     } catch (error) {
+        socket.emit("error");
         console.log("Error en lobby_controllers.js - join", error);
     }
 }
@@ -76,6 +96,7 @@ const leave = (socket) => {
             }
         }
     } catch (error) {
+        socket.emit("error");
         console.log("Error en lobby_controllers.js - leave", error);
     }
 }
