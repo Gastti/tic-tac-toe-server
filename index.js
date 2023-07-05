@@ -11,6 +11,14 @@ const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT | 4000;
 const CLIENT_URL = process.env.CLIENT_URL;
+
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "https://tic-tac-toe-six-ruddy.vercel.app");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
+
 export const io = new SocketServer(server, {
   cors: {
     origin: "https://tic-tac-toe-six-ruddy.vercel.app",
