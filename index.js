@@ -24,7 +24,7 @@ const corsOptions = {
 const corsMiddleware = cors(corsOptions);
 
 export const io = new SocketServer(server);
-io.use(corsMiddleware);
+app.use("/socket.io", cors(corsOptions));
 
 export const lobbies = [];
 
