@@ -15,7 +15,7 @@ const CLIENT_URL = process.env.CLIENT_URL;
 
 const corsOptions = {
   origin: [
-    "https://tic-tac-toe-six-ruddy.vercel.app",
+    "https://tic-tac-toe-six-ruddy.vercel.app", 
     "https://tic-tac-toe-server-production-88a3.up.railway.app"
   ],
   methods: ["GET", "POST"],
@@ -24,8 +24,8 @@ const corsOptions = {
 const corsMiddleware = cors(corsOptions);
 
 export const io = new SocketServer(server);
-app.use("/socket.io", cors(corsOptions));
-
+// io.use(corsMiddleware);
+io.use("/socket.io", cors(corsOptions));
 export const lobbies = [];
 
 io.on("connection", async (socket) => {
